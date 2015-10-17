@@ -24,12 +24,6 @@ class MobileShell < Formula
   depends_on "openssl"
   depends_on "protobuf"
 
-  # Fix timestamp code on PPC; will be in next release
-  patch do
-    url "https://github.com/keithw/mosh/commit/ba47f9f75081243406b99eeb2303f775cca7a438.patch"
-    sha256 "843caa7c1de7b0d05b0298050803758c56b2447843de1be27b6a48be9a1fa8ae"
-  end
-
   def install
     # teach mosh to locate mosh-client without referring
     # PATH to support launching outside shell e.g. via launcher
