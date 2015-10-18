@@ -21,8 +21,22 @@ class MobileShell < Formula
   option "without-check", "Run build-time tests"
 
   depends_on "pkg-config" => :build
+  depends_on :autoconf => :build if MacOS.version == :tiger
+  depends_on :automake => :build if MacOS.version == :tiger
   depends_on "openssl"
   depends_on "protobuf"
+
+  # Support Tiger's forkpty in util.h
+  patch do
+    url "https://gist.githubusercontent.com/ahihi/73419893bb2790cafa1a/raw/d4b2d7b38f61b5643885941cbbff4b972eb56973/mosh-osx-10.4-forkpty.patch"
+    sha256 "22a574267cc4f00fcec2ff83c18cc01852c19ff560a9d798e3962c43e1dd7a4c"
+  end if MacOS.version == :tiger
+  
+  # Remove unsetenv() return value checks on Tiger, since it returns void
+  patch do
+    url "https://gist.githubusercontent.com/ahihi/73419893bb2790cafa1a/raw/61513df6bc42b5518a4120ab57fddce7aa6a8903/mosh-osx-10.4-unsetenv-void.patch"
+    sha256 "5201af360497bc283adb7874ae3e860d4a29f17af86b818c4a252d19258d86fa"
+  end if MacOS.version == :tiger
 
   def install
     # teach mosh to locate mosh-client without referring
@@ -32,7 +46,7 @@ class MobileShell < Formula
     # Upstream prefers O2:
     # https://github.com/keithw/mosh/blob/master/README.md
     ENV.O2
-    system "./autogen.sh" if build.head?
+    system "./autogen.sh" if build.head? || MacOS.version == :tiger
     system "./configure", "--prefix=#{prefix}", "--enable-completion"
     system "make", "check" if build.with?("check") || build.bottle?
     system "make", "install"
